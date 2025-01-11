@@ -2,7 +2,7 @@ import { Linkedin, Instagram, Github } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="py-4 flex flex-row-reverse justify-between px-20 items-center">
+    <footer className="py-4 flex flex-row-reverse justify-between px-20 items-center fixed bottom-0 w-full">
       <div className="flex justify-center gap-8">
         <a
           href="https://www.linkedin.com/in/snigdha-kumar-90445b298/"

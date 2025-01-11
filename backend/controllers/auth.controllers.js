@@ -35,8 +35,8 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Username already exists" });
     }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
     const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
     res.status(201).json({
@@ -62,7 +62,7 @@ export const login = async (req, res) => {
         if(!user){
             return res.status(400).json({success:false, message:"User not found"});
         }
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        const isPasswordCorrect = await bcryptjs.compare(password, user.password);
         if(!isPasswordCorrect){
             return res.status(400).json({success:false, message:"Invalid password"});
         }
@@ -81,10 +81,21 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        res.clearCookie("token").json({success:true, message:"Logout successful"});
+        res.clearCookie("jwt-murmer").json({success:true, message:"Logout successful"});
     } catch (error) {
         console.log("Error in logout controller", error.message);
         res.status(500).json({success:false, message:"Internal Server Error"});
     }
+}
+
+
+export async function authCheck(req, res) {
+	try {
+		console.log("req.user:", req.user);
+		res.status(200).json({ success: true, user: req.user });
+	} catch (error) {
+		console.log("Error in authCheck controller", error.message);
+		res.status(500).json({ success: false, message: "Internal server error" });
+	}
 }
 

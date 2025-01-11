@@ -5,19 +5,19 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="flex flex-wrap items-center justify-between">
+    <header className="flex flex-wrap items-center justify-between fixed top-0 w-full">
       <div className="w-full h-16 font-semibold flex justify-between px-12 items-center">
         <img src="/logo2.png" alt="Logo" className="w-32 sm:w-40" />
         
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center  gap-20">
-          <Link to="/" className="hover:underline underline-offset-4 decoration-red-500 decoration-[3.5px]">
+          <Link to="/" className="hover:underline underline-offset-4 decoration-yellow-400 decoration-[3.5px]">
             About Us
           </Link>
-          <Link to="/" className="hover:underline underline-offset-4 decoration-red-500 decoration-[3.5px]">
+          <Link to="/" className="hover:underline underline-offset-4 decoration-yellow-400 decoration-[3.5px]">
             Contact Us
           </Link>
-          <Link to="/" className="hover:underline underline-offset-4 decoration-red-500 decoration-[3.5px]">
+          <Link to="/signup" className="hover:underline underline-offset-4 decoration-yellow-400 decoration-[3.5px]">
             Sign Up
           </Link>
         </div>
