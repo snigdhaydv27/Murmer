@@ -1,6 +1,9 @@
+import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
 function SignUp() {
   return (
     <div className=" h-screen flex justify-center items-center">
+        <Navbar />
       <div className="flex justify-center items-center w-3/4 h-3/4 p-8 rounded-[100px] shadow-2xl shadow-yellow-400 bg-white">
       {/* left side */}
      <div className="w-1/2 flex flex-col justify-center items-center h-full hidden md:flex">
@@ -44,6 +47,7 @@ function SignUp() {
        </button>
      </div>
       </div>
+      <Footer/>
     </div>
   )
 }

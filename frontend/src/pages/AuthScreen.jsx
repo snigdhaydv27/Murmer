@@ -1,12 +1,15 @@
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 function AuthScreen() {
   return (
     <>
       <div className="md:flex md:justify-center md:flex-row md:items-center h-screen flex justify-center items-center">
+      <Navbar />
         {/* Left Side */}
         <div className="md:w-1/2 p-10 sm:w-full">
-          <p className="text-yellow-400 md:text-5xl text-4xl font-bold">A platform for</p>
-          <p className="text-yellow-400 md:text-5xl text-4xl font-bold">meaningful</p>
-          <p className="text-yellow-400 md:text-5xl text-4xl font-bold">interactions.</p>
+          <p className="text-slate-500 md:text-5xl text-4xl font-bold">A platform for</p>
+          <p className="text-slate-500 md:text-5xl text-4xl font-bold">meaningful</p>
+          <p className="text-slate-500 md:text-5xl text-4xl font-bold">interactions.</p>
           <p className="md:text-xl text-slate-500 text-lg mt-10">
           Engage with loved ones, strengthen your
           </p>
@@ -30,17 +33,9 @@ function AuthScreen() {
 
         {/* Right Side */}
         <div className="md:w-1/2 h-full w-full hidden justify-center items-center px-2 md:flex">
-          {/* <video
-            className="h-3/4"
-            playsInline
-            autoPlay={true}
-            muted
-            loop
-          >
-            <source src="/hero-vid.m4v" type="video/mp4" />
-          </video> */}
           <img src="./auth.jpg" alt="Welcome" className="w-full h-3/4 rounded-[100px] mr-10 mt-8 shadow-2xl shadow-yellow-400 object-cover" />
         </div>
+        <Footer />
       </div>
     </>
   );
