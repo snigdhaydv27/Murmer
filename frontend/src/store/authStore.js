@@ -23,10 +23,21 @@ import { create } from "zustand";
 		set({ isLoggingIn: true });
 		try {
 			const response = await axios.post("/api/auth/login", credentials);
-			set({ user: response.data.user, isLoggingIn: false });
+			const { user, token } = response.data;
+			
+			// Store token in localStorage
+			localStorage.setItem('token', token);
+			
+			set({ 
+				user,
+				isLoggingIn: false 
+			});
+			
+			toast.success("Login successful!");
+			return response.data;
 		} catch (error) {
-			set({ isLoggingIn: false, user: null });
-			toast.error(error.response.data.message || "Login failed");
+			set({ isLoggingIn: false });
+			throw error;
 		}
 	},
 	logout: async () => {

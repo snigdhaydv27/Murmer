@@ -1,83 +1,160 @@
 import { User } from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { ENV_VARS } from "../config/envVars.js";
 
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    
+    // Validation
     if (!email || !username || !password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fiels are required" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "All fields are required" 
+      });
     }
+
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email format" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid email format" 
+      });
     }
+
+    // Password length validation
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password must be at least 6 characters",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters"
+      });
     }
-    const existingUserByEmail = await User.findOne({ email });
-    if (existingUserByEmail) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+
+    // Check for existing user
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: existingUser.email === email 
+          ? "Email already exists" 
+          : "Username already exists"
+      });
     }
-    const existingUserByUsername = await User.findOne({ username });
-    if (existingUserByUsername) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Username already exists" });
-    }
+
+    // Hash password
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
-    const newUser = new User({ username, email, password: hashedPassword });
+
+    // Create new user
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
     await newUser.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: newUser._id }, 
+      ENV_VARS.JWT_SECRET, 
+      { expiresIn: '30d' }
+    );
+
+    // Set cookie
+    res.cookie('jwt-murmer', token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+
+    // Send response
+    const userWithoutPassword = { ...newUser._doc };
+    delete userWithoutPassword.password;
+
     res.status(201).json({
       success: true,
-      user: {
-        ...newUser._doc,
-        password: "",
-      },
+      message: "User created successfully",
+      user: userWithoutPassword,
+      token
     });
+
   } catch (error) {
-    console.log("Error in signup controlller", error.message);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error("Error in signup controller:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
   }
 };
 
 export const login = async (req, res) => {
     try {
-        const {email, password} = req.body;
-        if(!email || !password){
-            return res.status(400).json({success:false, message:"All fields are required"});
+        const { email, password } = req.body;
+        
+        // Validation
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false, 
+                message: "All fields are required"
+            });
         }
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({success:false, message:"User not found"});
+
+        // Find user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                success: false, 
+                message: "Invalid email or password"
+            });
         }
+
+        // Check password
         const isPasswordCorrect = await bcryptjs.compare(password, user.password);
-        if(!isPasswordCorrect){
-            return res.status(400).json({success:false, message:"Invalid password"});
+        if (!isPasswordCorrect) {
+            return res.status(400).json({
+                success: false, 
+                message: "Invalid email or password"
+            });
         }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user._id },
+            ENV_VARS.JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
+        // Set cookie
+        res.cookie('jwt-murmer', token, {
+            httpOnly: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+        // Send response
+        const userWithoutPassword = { ...user._doc };
+        delete userWithoutPassword.password;
+
         res.status(200).json({
-			success: true,
-			user: {
-				...user._doc,
-				password: "",
-			},
-		});
+            success: true,
+            message: "Login successful",
+            user: userWithoutPassword,
+            token
+        });
+
     } catch (error) {
-        console.log("Error in login controller", error.message);
-        res.status(500).json({success:false, message:"Internal Server Error"});
+        console.error("Error in login controller:", error);
+        res.status(500).json({
+            success: false, 
+            message: "Internal server error"
+        });
     }
-}
+};
 
 export const logout = async (req, res) => {
     try {
